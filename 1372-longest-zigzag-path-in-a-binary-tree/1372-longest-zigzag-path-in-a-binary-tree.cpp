@@ -12,24 +12,33 @@
 class Solution {
 public:
     int maxm=INT_MIN;
-    void helper(TreeNode* root,int cnt,bool flag)
+    int helper(TreeNode* root,bool flag,unordered_map<TreeNode*, vector<int>> &dp)
     {
-        if(!root)
+        if(!root)return -1;
+        if(dp.find(root) != dp.end() && dp[root][flag] != -1)return dp[root][flag];
+
+        if(dp.find(root) == dp.end())dp[root] = {-1, -1};//initialization
+
+        int len;
+        if(flag)
         {
-            maxm=max(maxm,cnt);
-            cnt=0;
-            return;
+            len=1+helper(root->left,!flag,dp);
         }
-        if(flag) helper(root->left,cnt+1,!flag);
-        else helper(root->right,cnt+1,!flag);
-        return;
+        else
+        {
+            len=1+helper(root->right,!flag,dp);
+        }
+        maxm=max(maxm,len);
+        helper(root->left, true, dp);
+        helper(root->right, false, dp);
+        return dp[root][flag] = len;
     }
     int longestZigZag(TreeNode* root) {
         if(!root) return 0;
-        helper(root,0,true);
-        helper(root,0,false);
-        longestZigZag(root->left);
-        longestZigZag(root->right);
-        return maxm-1;
+        unordered_map<TreeNode*, vector<int>> dp;
+        helper(root,true,dp);
+        helper(root,false,dp);
+        
+        return maxm;
     }
 };
