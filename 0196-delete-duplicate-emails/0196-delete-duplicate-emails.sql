@@ -1,2 +1,13 @@
-DELETE p2 FROM Person p1, Person p2
-WHERE p1.Email = p2. Email AND p1.Id < p2.Id
+DELETE FROM Person
+WHERE id IN (
+    SELECT id
+    FROM (
+        SELECT id,
+               ROW_NUMBER() OVER (
+                   PARTITION BY email
+                   ORDER BY id
+               ) AS rn
+        FROM Person
+    ) t
+    WHERE rn > 1
+);
