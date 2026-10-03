@@ -7,6 +7,8 @@ public:
         if(node == graph.size()-1)
         {
             ans.push_back(v);
+            v.pop_back();
+            return;
         }
 
         for(auto it:graph[node])
