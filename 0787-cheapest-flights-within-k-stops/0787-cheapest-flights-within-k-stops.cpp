@@ -2,40 +2,45 @@ class Solution {
 public:
     int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
         vector<vector<pair<int,int>>>adj(n);
-        for(int i=0;i<flights.size();i++)
+        for(auto it:flights)
         {
-            int u=flights[i][0];
-            int v=flights[i][1];
-            int w=flights[i][2];
+            int u = it[0];
+            int v = it[1];
+            int w = it[2];
 
             adj[u].push_back({v,w});
-
         }
-        vector<int>dis(n,1e9);
-
-        queue<pair<int,pair<int,int>>>q;  // stops , node , distance
-        q.push({0,{src,0}});
-        while(q.size()>0)
+        vector<vector<int>>dis(k+2,vector<int>(n,1e9));
+        priority_queue<pair<int,pair<int,int>>,vector<pair<int,pair<int,int>>>,greater<pair<int,pair<int,int>>>>pq; //  stops , node , distance
+        pq.push({0,{src , 0}});
+        dis[0][src]=0;
+        int minm = 1e9;
+        while(pq.size()>0)
         {
-            int stop=q.front().first;
-            int node=q.front().second.first;
-            int ds=q.front().second.second;
-            // if(node==dst) return dis[node];
-            q.pop();
-            if(stop >= k+1) continue;
-            
+            int stop = pq.top().first;
+            int node = pq.top().second.first;
+            int ds = pq.top().second.second;
+
+            pq.pop();
+            if(node == dst)
+            {
+                minm = min(minm , ds);
+            }
+
+            if(stop == k+1)
+                continue;
+
             for(auto it:adj[node])
             {
-                if(ds + it.second < dis[it.first])
+                int nw = it.first;
+                if(ds + it.second < dis[stop+1][nw])
                 {
-                    dis[it.first]=ds+it.second;
-                    q.push({stop+1,{it.first,dis[it.first]}});
+                    dis[stop+1][nw] = ds + it.second;
+                    pq.push({stop+1,{nw,dis[stop+1][nw]}});
                 }
             }
         }
-
-       return dis[dst] == 1e9 ? -1 : dis[dst];
-
-
+        if(minm==1e9) return -1;
+        return minm;
     }
 };
