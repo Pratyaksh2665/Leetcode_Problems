@@ -1,63 +1,59 @@
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
- *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
- * };
- */
-class Solution {
-public:
-    int maxm=0;
-    set<int>s;
-    unordered_map<TreeNode* , TreeNode*>mp;
-    void trav(TreeNode* root)
-    {
-        if(!root) return;
+class Solution { 
+public: 
+    map<TreeNode*,TreeNode*>mp; // node, parent
+    map<TreeNode*,bool>vis;
+    int maxm = 0;
 
-        if(root->left) mp[root->left]=root;
-        if(root->right) mp[root->right]=root;
+    void trav(TreeNode* root) 
+    { 
+        if(!root) return; 
 
-        trav(root->left);
-        trav(root->right);
+        if(root->left) mp[root->left] = root; 
+        if(root->right) mp[root->right] = root; 
 
-        return;
-    }
-    TreeNode* find(TreeNode* root,int start)
-    {
-        if(!root) return nullptr;
-        if(root->val == start) return root;
+        trav(root->left); 
+        trav(root->right); 
+    } 
 
-        TreeNode* left = find(root->left , start);
+    TreeNode* found(TreeNode* root,int start) 
+    { 
+        if(!root) return NULL; 
+
+        if(root->val == start) 
+            return root;
+
+        TreeNode* left = found(root->left,start); 
+
         if(left) return left;
-        
-        return find(root->right , start);
 
-        
-    }
-    void check(TreeNode* root ,int lvl )
-    {
-        if(!root) return;
-        if(s.count(root->val)) return;
-        s.insert(root->val);
-        maxm=max(maxm,lvl);
-        check(root->left , lvl+1);
-        check(root->right , lvl+1);
-        if(mp.count(root)>0) check(mp[root] , lvl+1);
+        return found(root->right,start); 
+    } 
 
-        return;
-    }
-    int amountOfTime(TreeNode* root, int start) {
-        if(!root) return 0;
+    void timess(TreeNode* root, int time) 
+    { 
+        if(!root || vis[root]) return;
 
+        vis[root] = true;
+
+        maxm = max(maxm,time);
+
+        if(root->left) 
+            timess(root->left,time+1); 
+         
+        if(root->right) 
+            timess(root->right,time+1); 
+
+        if(mp.count(root)!=0) 
+            timess(mp[root],time+1); 
+    } 
+
+    int amountOfTime(TreeNode* root, int start) { 
         trav(root);
-        TreeNode* node = find(root , start);
-        int lvl=0;
-        check(node , lvl);
 
-        return maxm;
-    }
+        TreeNode* node = found(root,start); 
+
+        timess(node,0); 
+
+        return maxm; 
+    } 
 };
